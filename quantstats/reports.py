@@ -48,7 +48,7 @@ def _get_trading_periods(trading_year_days=252):
 def html(returns, benchmark=None, rf=0., grayscale=False,
          title='Strategy Tearsheet', output=None, compounded=True,
          trading_year_days=252, download_filename='quantstats-tearsheet.html',
-         figfmt='svg', template_path=None):
+         figfmt='svg', template_path=None, match_volatility_with_benchmark=True):
 
     win_year, win_half_year = _get_trading_periods(trading_year_days)
 
@@ -119,7 +119,7 @@ def html(returns, benchmark=None, rf=0., grayscale=False,
                        show=False, ylabel=False, cumulative=compounded)
     tpl = tpl.replace('{{log_returns}}', _embed_figure(figfile, figfmt))
 
-    if benchmark is not None:
+    if benchmark is not None and match_volatility_with_benchmark:
         figfile = _utils._file_stream()
         _plots.returns(returns, benchmark, match_volatility=True,
                        grayscale=grayscale, figsize=(8, 4), subtitle=False,
