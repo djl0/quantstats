@@ -291,7 +291,7 @@ def basic(returns, benchmark=None, rf=0., grayscale=False,
 
 def metrics(returns, benchmark=None, rf=0., display=True,
             mode='basic', sep=False, compounded=True,
-            trading_year_days=252, **kwargs):
+            trading_year_days=252, lookback_from_last_trade=True, **kwargs):
 
     win_year, _ = _get_trading_periods(trading_year_days)
 
@@ -410,9 +410,17 @@ def metrics(returns, benchmark=None, rf=0., display=True,
     metrics['~~'] = blank
     comp_func = _stats.comp if compounded else _np.sum
 
-    today = df.index[-1]  # _dt.today()
+    if lookback_from_last_trade:
+        today = df.index[-1]
+    else:
+        today = _dt.today()
+
     metrics['MTD %'] = comp_func(
         df[df.index >= _dt(today.year, today.month, 1)]) * pct
+
+    d = today - _td(1 * 365 / 12)
+    metrics['1M %'] = comp_func(
+        df[df.index >= _dt(d.year, d.month, d.day)]) * pct
 
     d = today - _td(3*365/12)
     metrics['3M %'] = comp_func(

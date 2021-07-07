@@ -24,6 +24,9 @@ from math import ceil as _ceil, sqrt as _sqrt
 from scipy.stats import (
     norm as _norm, linregress as _linregress
 )
+from datetime import (
+    datetime as _dt
+)
 
 from . import utils as _utils
 
@@ -270,13 +273,19 @@ def gain_to_pain_ratio(returns, rf=0, resolution="D"):
     return returns.sum() / downside
 
 
-def cagr(returns, rf=0., compounded=True):
+def cagr(returns, rf=0., compounded=True, lookback_from_last_trade=True, days_in_calculation_period=365.0):
     """
     calculates the communicative annualized growth return
     (CAGR%) of access returns
 
     If rf is non-zero, you must specify periods.
     In this case, rf is assumed to be expressed in yearly (annualized) terms
+
+    lookback_from_last_trade differentiates between lookback period from today or from last trade
+
+    days_in_calculation is to be able to calculate geometric average return over months/weeks/etc.
+    EG: value of 30 (or even more precisely 365.25/12) would give monthly avg return.
+    I prefer this calculation to the "expected monthly" found in reporting.
     """
 
     total = _utils._prepare_returns(returns, rf)
@@ -285,9 +294,14 @@ def cagr(returns, rf=0., compounded=True):
     else:
         total = _np.sum(total)
 
-    years = (returns.index[-1] - returns.index[0]).days / 365.
+    if lookback_from_last_trade:
+        today = returns.index[-1]
+    else:
+        today = _dt.today()
 
-    res = abs(total + 1.0) ** (1.0 / years) - 1
+    days = (today - returns.index[0]).days
+
+    res = abs(total + 1.0) ** (float(days_in_calculation_period) / days) - 1
 
     if isinstance(returns, _pd.DataFrame):
         res = _pd.Series(res)
