@@ -355,6 +355,7 @@ def yearly_returns(returns, benchmark=None,
     title = 'EOY Returns'
     if benchmark is not None:
         title += '  vs Benchmark'
+        #TODO: this is done differently from returns, creates issues
         benchmark = _utils._prepare_benchmark(
             benchmark, returns.index).resample('A').apply(
                 _stats.compsum).resample('A').last()
@@ -366,21 +367,38 @@ def yearly_returns(returns, benchmark=None,
         returns = returns.apply(_df.cumsum)
     returns = returns.resample('A').last()
 
-    fig = _core.plot_returns_bars(returns, benchmark,
-                                  fontname=fontname,
-                                  hline=returns.mean(),
-                                  hlw=hlw,
-                                  hllabel=hllabel,
-                                  hlcolor=hlcolor,
-                                  match_volatility=match_volatility,
-                                  log_scale=log_scale,
-                                  resample=None,
-                                  title=title,
-                                  figsize=figsize,
-                                  grayscale=grayscale,
-                                  ylabel=ylabel,
-                                  subtitle=subtitle,
-                                  savefig=savefig, show=show)
+    try:
+        fig = _core.plot_returns_bars(returns, benchmark,
+                                      fontname=fontname,
+                                      hline=returns.mean(),
+                                      hlw=hlw,
+                                      hllabel=hllabel,
+                                      hlcolor=hlcolor,
+                                      match_volatility=match_volatility,
+                                      log_scale=log_scale,
+                                      resample=None,
+                                      title=title,
+                                      figsize=figsize,
+                                      grayscale=grayscale,
+                                      ylabel=ylabel,
+                                      subtitle=subtitle,
+                                      savefig=savefig, show=show)
+    except:
+        fig = _core.plot_returns_bars(returns, benchmark=None,
+                                      fontname=fontname,
+                                      hline=returns.mean(),
+                                      hlw=hlw,
+                                      hllabel=hllabel,
+                                      hlcolor=hlcolor,
+                                      match_volatility=match_volatility,
+                                      log_scale=log_scale,
+                                      resample=None,
+                                      title=title,
+                                      figsize=figsize,
+                                      grayscale=grayscale,
+                                      ylabel=ylabel,
+                                      subtitle=subtitle,
+                                      savefig=savefig, show=show)
     if not show:
         return fig
 
